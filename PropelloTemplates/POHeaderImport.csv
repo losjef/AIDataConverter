@@ -1,0 +1,2 @@
+PO #,Store Number,PO Type,PO Status,Supplier,Credit Terms,Supplier Defective Policy,Material Return Auth,PO Ref #,Buyer,Ship Via,Tax Code,FOB,PO Created Date,PO Required Date,PO Returned Date,PO Cancel Date,Payment Date,Alternate PO Number,Header Cost Discount Code,Line Item Discount Code,Charge Freight By,Cubic Unit of Measure to Charge Freight By,Weight Unit of Measure to Charge Freight By,Dollar Amount to Charge per UOM,PO EDI Type,Adder Code
+,1,0,1,Ace Hardware,N30,FD-1,BR-John,P-987,Mark,OT,MA-5,O,2/01/2022,2/01/2022,,,,PO987,,,,,,,,

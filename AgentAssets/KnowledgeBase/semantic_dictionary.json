@@ -1,0 +1,53 @@
+{
+  "vendors": {
+    "Milwaukee": {
+      "mappings": {
+        "Item #": "Item",
+        "ITEM NO.": "Item",
+        "Description": "Description",
+        "Each UPC": "UPC",
+        "UPC CODE": "UPC",
+        "List Price": "Default Sell Price",
+        "HEAVY DUTY Price": "Purchase Cost",
+        "iMap Price": "Retail Price Control",
+        "EVERYDAY IMAP PRICE": "Retail Price Control",
+        "Is Discontinued": "Discontinued",
+        "Each Weight": "Weight",
+        "Each Quantity": "Stocking UOM",
+        "Business Unit": "Category Name"
+      },
+      "defaults": {
+        "Store Number": 1,
+        "Stocking UOM": "EA"
+      }
+    },
+    "Midwest": {
+      "mappings": {
+        "Item Number": "Item",
+        "Custom Part Number": "MFG Part #",
+        "Description": "Description",
+        "Each UPC": "UPC",
+        "Each Retail": "Default Sell Price",
+        "Box Cost": "Purchase Cost",
+        "Each UM": "Stocking UOM",
+        "Box UM": "Purchase UOM"
+      }
+    },
+    "DIB": {
+      "mappings": {
+        "SKU": "Item",
+        "Model": "MFG Part #",
+        "Short Product Description": "Description",
+        "UPC": "UPC",
+        "Your Retail": "Default Sell Price",
+        "Cost": "Purchase Cost",
+        "POG Number": "Store Tags"
+      }
+    }
+  },
+  "global_aliases": {
+    "SKU": "Item",
+    "Part #": "MFG Part #",
+    "EAN": "UPC"
+  }
+}

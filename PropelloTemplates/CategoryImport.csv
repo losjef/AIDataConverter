@@ -1,0 +1,2 @@
+Category Code,Category Name,Description,Level,URL Segment,Parent Code,Parent Name,Default Location Code,Desired GP %,Minimum GP %,Exclude From Integrations Update ( Y/N),Non Merchandise (Y/N),Tax Code,Show in DIB e-Store
+CAT100,Category Department,Sample Department,0,sample-url,,,,20,5,False,False,,False

@@ -1,0 +1,2 @@
+Matrix Code,Matrix Description,Matrix Calculation Cost,Level 1 Method,Level 1 Value,Level 1 Rounded By,Level 2 Method,Level 2 Value,Level 2 Rounded By,Level 3 Method,Level 3 Value,Level 3 Rounded By,Level 4 Method,Level 4 Value,Level 4 Rounded By,Level 5 Method,Level 5 Value,Level 5 Rounded By
+PM01,PM01 Matrix Description,0,1,5,Use Price Rounding Table,Percent Above Retail,7,,Percent Above Cost,8,To Nearest 10th of A Cent,Markup Dollars Above Cost,15.00,,Percent Below Retail,2,4

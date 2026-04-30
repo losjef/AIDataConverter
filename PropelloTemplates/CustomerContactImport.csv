@@ -1,0 +1,2 @@
+Customer Number,Title,First Name,Last Name,Date of Birth,Address Line 1,Address Line 2,Address Line 3,City,State,Zip,Country,Email,Primary Contact,Main Address,Billing Address,Shipping Address,Auth to Charge,E-invoices,E-statements,Phone Type,Phone Country,Phone Number,Primary Phone
+100001,Sr.,Connie,Sample,1999-01-31,12345 Oak Street,Suite 1001,Attn: Connie Jr.,Dublin,CA,94568,USA,connie@domain.com,True,True,True,True,False,False,False,Mobile,US,9255557890,True

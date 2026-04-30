@@ -1,0 +1,12 @@
+Parent Group,Group Name,Level,Barcode,Color,Item
+,Default,0,,,
+Default,Clothes,1,,#e5f5d7,
+Clothes,Mens,2,3439,,
+Mens,,3,,,"Men001,Men002,Men003"
+Clothes,Women's,2,,,
+Women's,,3,,,"W001,W002"
+Clothes,Kids,2,5834,#2c3f71,
+Kids,,3,,,"K001,K002"
+Default,Books,1,,,
+Books,Novels,2,,,
+Books,Fiction,2,,,
