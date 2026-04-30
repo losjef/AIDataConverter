@@ -66,9 +66,12 @@ The agent must use a **Flexible linking strategy** to compare vendor items again
 - [x] Create/Update `GEMINI.md` with project mission and core logic.
 - [x] Create verbose `PRD.md` (this document).
 - [x] Standardize on C#/.NET as the primary stack.
-- [ ] Define the architecture for the "Adaptive Knowledge Base" (JSON/SQLite) to store user corrections.
+- [x] Establish `AgentAssets/` directory for portable AI knowledge.
+- [x] Create initial `semantic_dictionary.json`.
+- [x] Initialize Git repository and push to GitHub.
 
-### Phase 2: Template Parsing Engine (C#)
+### Phase 2: Template Parsing Engine (C#) -> **NEXT PRIORITY**
+- [ ] Initialize .NET 10 Class Library project.
 - [ ] Develop C# logic to parse Propello XLSX metadata rows.
 - [ ] Develop C# logic to read Propello CSV headers.
 - [ ] Create a C# validation utility to check if a generated file matches the target schema.
