@@ -1,5 +1,261 @@
 ﻿@page "/"
+@using AIDataConvertor.Models.KnowledgeBase
+@using AIDataConvertor.Services.KnowledgeBase
+@inject ISemanticDictionaryRepository SemanticDictionaryRepository
+@inject ISemanticDictionaryQueryService SemanticDictionaryQueryService
+@inject IBaselineSchemaAnalyzer BaselineSchemaAnalyzer
+@inject ISuperiorHardwareBaselineHeaderReader SuperiorHardwareBaselineHeaderReader
+@inject IMilwaukeeComparisonPreviewService MilwaukeeComparisonPreviewService
 
-<h1>Hello, world!</h1>
+<PageTitle>AIDataConverter</PageTitle>
 
-Welcome to your new app.
+<h1>AIDataConverter</h1>
+
+<p>
+	This app is being shaped around a local, adaptive memory model for vendor matching.
+	The semantic dictionary below is loaded from an editable working copy in app data, seeded from the checked-in knowledge asset.
+</p>
+
+@if (loadError is not null)
+{
+	<p class="text-danger">@loadError</p>
+}
+else if (document is null)
+{
+	<p>Loading semantic memory...</p>
+}
+else
+{
+	<section class="mb-4">
+		<h2>Semantic Memory Status</h2>
+		<ul>
+			<li><strong>Schema version:</strong> @document.SchemaVersion</li>
+			<li><strong>Vendors:</strong> @document.Vendors.Count</li>
+			<li><strong>Shared concepts:</strong> @document.SharedConcepts.Count</li>
+			<li><strong>User review before AI:</strong> @BoolLabel(document.Governance.UserReviewPrecedesAiWhenPractical)</li>
+			<li><strong>Cross-vendor reuse before AI:</strong> @BoolLabel(document.Governance.CrossVendorReusePrecedesAiForNewVendors)</li>
+			<li><strong>Working file:</strong> @SemanticDictionaryRepository.GetWorkingFilePath()</li>
+		</ul>
+	</section>
+
+	<section>
+		<h2>Vendor Rule Sets</h2>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Vendor</th>
+					<th>Status</th>
+					<th>Rule Sets</th>
+					<th>Shared Seeds</th>
+				</tr>
+			</thead>
+			<tbody>
+			@foreach (var vendor in document.Vendors.OrderBy(entry => entry.Key))
+			{
+				<tr>
+					<td>@vendor.Key</td>
+					<td>@vendor.Value.Status</td>
+					<td>@vendor.Value.RuleSets.Count</td>
+					<td>@vendor.Value.SeedSharedConcepts.Count</td>
+				</tr>
+			}
+			</tbody>
+		</table>
+	</section>
+
+	<section class="mt-4">
+		<h2>Local Match Resolution Examples</h2>
+		<p>
+			These examples are resolved entirely from the local semantic memory layer. No AI SDK is involved.
+		</p>
+
+		<h3>Milwaukee: <code>Item #</code></h3>
+		@RenderCandidates(milwaukeeCandidates)
+
+		<h3>New Vendor Seed: <code>SKU</code></h3>
+		@RenderCandidates(sharedSeedCandidates)
+	</section>
+
+	<section class="mt-4">
+		<h2>Milwaukee IMAP Comparison Preview</h2>
+		<p>
+			This Milwaukee-only preview uses every row from the current Costs workbook and joins IMAP data when Item No or UPC Code resolves to one deterministic match.
+		</p>
+
+		@if (milwaukeeComparisonPreview is not null && milwaukeeComparisonPreview.ErrorMessage is not null)
+		{
+			<p class="text-danger">@milwaukeeComparisonPreview.ErrorMessage</p>
+		}
+		else if (milwaukeeComparisonPreview is not null)
+		{
+			<p>
+				<strong>Costs file:</strong> @milwaukeeComparisonPreview.CostsFileName<br />
+				<strong>IMAP file:</strong> @milwaukeeComparisonPreview.ImapFileName<br />
+				<strong>Costs rows:</strong> @milwaukeeComparisonPreview.CostsRowCount<br />
+				<strong>IMAP rows:</strong> @milwaukeeComparisonPreview.ImapRowCount<br />
+				<strong>Matched costs rows:</strong> @milwaukeeComparisonPreview.MatchedRowCount<br />
+				<strong>Unmatched costs rows:</strong> @milwaukeeComparisonPreview.UnmatchedRowCount<br />
+				<strong>Ambiguous costs rows:</strong> @milwaukeeComparisonPreview.AmbiguousRowCount
+			</p>
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Costs Row</th>
+						<th>Costs Item No</th>
+						<th>Costs UPC Code</th>
+						<th>Costs Description</th>
+						<th>Match Status</th>
+						<th>Match Basis</th>
+						<th>IMAP Item No</th>
+						<th>IMAP UPC Code</th>
+						<th>IMAP MAP</th>
+						<th>Note</th>
+					</tr>
+				</thead>
+				<tbody>
+				@foreach (var row in milwaukeeComparisonPreview.Rows.Take(25))
+				{
+					<tr>
+						<td>@row.CostsRowNumber</td>
+						<td>@(row.CostsItemNumber ?? "-")</td>
+						<td>@(row.CostsUpcCode ?? "-")</td>
+						<td>@(row.CostsDescription ?? "-")</td>
+						<td>@row.MatchStatus</td>
+						<td>@row.MatchBasis</td>
+						<td>@(row.ImapItemNumber ?? "-")</td>
+						<td>@(row.ImapUpcCode ?? "-")</td>
+						<td>@(row.ImapMinimumAdvertisedPrice ?? "-")</td>
+						<td>@row.Note</td>
+					</tr>
+				}
+				</tbody>
+			</table>
+
+			@if (milwaukeeComparisonPreview.Rows.Count > 25)
+			{
+				<p>Showing the first 25 joined Costs rows out of @milwaukeeComparisonPreview.Rows.Count total.</p>
+			}
+		}
+	</section>
+
+	<section class="mt-4">
+		<h2>Superior Hardware Baseline Readiness Example</h2>
+		<p>
+			This probe treats rolling time-series columns such as <code>Apr-26</code>, <code>Apr 2026</code>, or <code>Q1-26</code> as dynamic fields instead of stable required schema columns.
+		</p>
+
+		@if (baselineHeaders is not null && baselineHeaders.ErrorMessage is not null)
+		{
+			<p class="text-danger">@baselineHeaders.ErrorMessage</p>
+		}
+		else if (upcMatchingReadiness is not null && productImportReadiness is not null && baselineHeaders is not null)
+		{
+			<p>
+				<strong>Latest export:</strong> @baselineHeaders.FileName<br />
+				<strong>Header count:</strong> @baselineHeaders.Headers.Count<br />
+				<strong>Dynamic time-series columns detected:</strong> @upcMatchingReadiness.DynamicColumnCount
+			</p>
+
+			@RenderReadinessSummary(upcMatchingReadiness)
+			@RenderReadinessSummary(productImportReadiness)
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Source Column</th>
+						<th>Classification</th>
+						<th>Dynamic Group</th>
+						<th>Resolved Field</th>
+						<th>Reason</th>
+					</tr>
+				</thead>
+				<tbody>
+				@foreach (var column in upcMatchingReadiness.Columns)
+				{
+					<tr>
+						<td>@column.SourceHeader</td>
+						<td>@column.Classification</td>
+						<td>@(column.DynamicColumnGroup ?? "-")</td>
+						<td>@(column.ResolvedField ?? "-")</td>
+						<td>@column.Reason</td>
+					</tr>
+				}
+				</tbody>
+			</table>
+		}
+	</section>
+}
+
+@code {
+	private SemanticDictionaryDocument? document;
+	private string? loadError;
+	private IReadOnlyList<HeaderMatchCandidate> milwaukeeCandidates = [];
+	private IReadOnlyList<HeaderMatchCandidate> sharedSeedCandidates = [];
+	private BaselineReadinessReport? upcMatchingReadiness;
+	private BaselineReadinessReport? productImportReadiness;
+	private BaselineWorkbookHeaders? baselineHeaders;
+	private MilwaukeeComparisonPreview? milwaukeeComparisonPreview;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			document = await SemanticDictionaryRepository.LoadAsync();
+			milwaukeeCandidates = await SemanticDictionaryQueryService.FindHeaderMatchesAsync("Item #", "Milwaukee");
+			sharedSeedCandidates = await SemanticDictionaryQueryService.FindHeaderMatchesAsync("SKU");
+			milwaukeeComparisonPreview = await MilwaukeeComparisonPreviewService.LoadPreviewAsync();
+			baselineHeaders = await SuperiorHardwareBaselineHeaderReader.LoadLatestHeadersAsync();
+			if (baselineHeaders.HasHeaders)
+			{
+				upcMatchingReadiness = await BaselineSchemaAnalyzer.AnalyzeAsync(
+					baselineHeaders.Headers,
+					BaselineWorkflowProfile.UpcMatching);
+				productImportReadiness = await BaselineSchemaAnalyzer.AnalyzeAsync(
+					baselineHeaders.Headers,
+					BaselineWorkflowProfile.ProductImportEnrichment);
+			}
+		}
+		catch (Exception exception)
+		{
+			loadError = exception.Message;
+		}
+	}
+
+	private static string BoolLabel(bool value) => value ? "Yes" : "No";
+
+	private RenderFragment RenderReadinessSummary(BaselineReadinessReport report) => @<div class="mb-3">
+		<p>
+			<strong>@report.WorkflowName:</strong> @BoolLabel(report.IsReady)<br />
+			<strong>Required fields:</strong> @string.Join(", ", report.RequiredFields)
+		</p>
+		@if (report.MissingRequiredFields.Count > 0)
+		{
+			<p class="text-danger">
+				Missing required fields: @string.Join(", ", report.MissingRequiredFields)
+			</p>
+		}
+	</div>;
+
+	private RenderFragment RenderCandidates(IReadOnlyList<HeaderMatchCandidate> candidates) => @<ul>
+		@if (candidates.Count == 0)
+		{
+			<li>No local match candidates found.</li>
+		}
+		else
+		{
+			foreach (var candidate in candidates)
+			{
+				<li>
+					<strong>@candidate.TargetField</strong>
+					via @candidate.MatchSource
+					@if (!string.IsNullOrWhiteSpace(candidate.SourceVendor))
+					{
+						<span> from @candidate.SourceVendor</span>
+					}
+					<span> (confidence: @candidate.Confidence, status: @candidate.Status)</span>
+				</li>
+			}
+		}
+	</ul>;
+}

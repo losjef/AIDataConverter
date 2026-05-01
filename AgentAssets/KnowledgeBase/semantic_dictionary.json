@@ -1,53 +1,500 @@
 {
-  "vendors": {
-    "Milwaukee": {
-      "mappings": {
-        "Item #": "Item",
-        "ITEM NO.": "Item",
-        "Description": "Description",
-        "Each UPC": "UPC",
-        "UPC CODE": "UPC",
-        "List Price": "Default Sell Price",
-        "HEAVY DUTY Price": "Purchase Cost",
-        "iMap Price": "Retail Price Control",
-        "EVERYDAY IMAP PRICE": "Retail Price Control",
-        "Is Discontinued": "Discontinued",
-        "Each Weight": "Weight",
-        "Each Quantity": "Stocking UOM",
-        "Business Unit": "Category Name"
-      },
-      "defaults": {
-        "Store Number": 1,
-        "Stocking UOM": "EA"
-      }
+  "schema_version": "2.0",
+  "description": "Human-readable semantic mapping asset for vendor header interpretation, defaults, and adaptive reuse across vendor formats.",
+  "governance": {
+    "user_review_precedes_ai_when_practical": true,
+    "cross_vendor_reuse_precedes_ai_for_new_vendors": true,
+    "rule_statuses": [
+      "active",
+      "deprecated",
+      "retired",
+      "replaced"
+    ],
+    "confidence_scale": "0.0_to_1.0",
+    "notes": [
+      "Use shared concepts as reusable seeds before inventing new vendor-specific rules.",
+      "Deprecate or replace stale rules instead of deleting history when a vendor format changes.",
+      "User-confirmed edits should outrank AI suggestions when both exist for the same match."
+    ]
+  },
+  "cross_vendor_seed_behavior": {
+    "new_vendor_review_flow": [
+      "shared_concepts",
+      "existing_vendor_patterns",
+      "user_review",
+      "ai_assist"
+    ],
+    "seed_mode": "propose_shared_matches_before_vendor_specific_rules_are_created",
+    "require_user_review_for_seeded_matches": true,
+    "allow_seed_reuse_from_existing_vendors": true,
+    "notes": [
+      "Shared concepts provide the first reusable interpretation pass for a new vendor.",
+      "Existing vendor patterns can be reviewed as seed candidates when shared concepts are insufficient.",
+      "AI should only see unresolved cases after deterministic reuse and user review paths are exhausted."
+    ]
+  },
+  "shared_concepts": {
+    "Item": {
+      "description": "Canonical item identifier field used for vendor item numbers and SKU-like labels.",
+      "seed_headers": [
+        {
+          "source_header": "SKU",
+          "status": "active",
+          "confidence": 0.95,
+          "provenance": {
+            "source": "global_aliases.v1 migration",
+            "recorded_on": "2026-05-01",
+            "review_state": "legacy_migrated"
+          }
+        }
+      ]
     },
-    "Midwest": {
-      "mappings": {
-        "Item Number": "Item",
-        "Custom Part Number": "MFG Part #",
-        "Description": "Description",
-        "Each UPC": "UPC",
-        "Each Retail": "Default Sell Price",
-        "Box Cost": "Purchase Cost",
-        "Each UM": "Stocking UOM",
-        "Box UM": "Purchase UOM"
-      }
+    "MFG Part #": {
+      "description": "Canonical manufacturer or alternate vendor part identifier.",
+      "seed_headers": [
+        {
+          "source_header": "Part #",
+          "status": "active",
+          "confidence": 0.94,
+          "provenance": {
+            "source": "global_aliases.v1 migration",
+            "recorded_on": "2026-05-01",
+            "review_state": "legacy_migrated"
+          }
+        }
+      ]
     },
-    "DIB": {
-      "mappings": {
-        "SKU": "Item",
-        "Model": "MFG Part #",
-        "Short Product Description": "Description",
-        "UPC": "UPC",
-        "Your Retail": "Default Sell Price",
-        "Cost": "Purchase Cost",
-        "POG Number": "Store Tags"
-      }
+    "UPC": {
+      "description": "Canonical UPC field used for barcode or EAN-style identifiers.",
+      "seed_headers": [
+        {
+          "source_header": "EAN",
+          "status": "active",
+          "confidence": 0.9,
+          "provenance": {
+            "source": "global_aliases.v1 migration",
+            "recorded_on": "2026-05-01",
+            "review_state": "legacy_migrated"
+          }
+        }
+      ]
     }
   },
-  "global_aliases": {
-    "SKU": "Item",
-    "Part #": "MFG Part #",
-    "EAN": "UPC"
+  "vendors": {
+    "Milwaukee": {
+      "status": "active",
+      "provenance": {
+        "source": "semantic_dictionary.json v1 migration",
+        "recorded_on": "2026-05-01",
+        "review_state": "legacy_migrated"
+      },
+      "seed_shared_concepts": [
+        "Item",
+        "Description",
+        "UPC",
+        "Default Sell Price",
+        "Purchase Cost",
+        "Retail Price Control",
+        "Discontinued",
+        "Weight",
+        "Stocking UOM",
+        "Category Name"
+      ],
+      "rule_sets": [
+        {
+          "id": "milwaukee-core-header-mappings",
+          "status": "active",
+          "confidence": 0.97,
+          "provenance": {
+            "source": "semantic_dictionary.json v1 migration",
+            "recorded_on": "2026-05-01",
+            "review_state": "legacy_migrated"
+          },
+          "mapping_rules": [
+            {
+              "source_header": "Item #",
+              "target_field": "Item",
+              "status": "active",
+              "confidence": 0.99,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "ITEM NO.",
+              "target_field": "Item",
+              "status": "active",
+              "confidence": 0.99,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Description",
+              "target_field": "Description",
+              "status": "active",
+              "confidence": 0.99,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Each UPC",
+              "target_field": "UPC",
+              "status": "active",
+              "confidence": 0.98,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "UPC CODE",
+              "target_field": "UPC",
+              "status": "active",
+              "confidence": 0.98,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "List Price",
+              "target_field": "Default Sell Price",
+              "status": "active",
+              "confidence": 0.96,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "HEAVY DUTY Price",
+              "target_field": "Purchase Cost",
+              "status": "active",
+              "confidence": 0.95,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "iMap Price",
+              "target_field": "Retail Price Control",
+              "status": "active",
+              "confidence": 0.95,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "EVERYDAY IMAP PRICE",
+              "target_field": "Retail Price Control",
+              "status": "active",
+              "confidence": 0.95,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Is Discontinued",
+              "target_field": "Discontinued",
+              "status": "active",
+              "confidence": 0.94,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Each Weight",
+              "target_field": "Weight",
+              "status": "active",
+              "confidence": 0.93,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Each Quantity",
+              "target_field": "Stocking UOM",
+              "status": "active",
+              "confidence": 0.91,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Business Unit",
+              "target_field": "Category Name",
+              "status": "active",
+              "confidence": 0.9,
+              "provenance": {
+                "source": "Milwaukee learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            }
+          ],
+          "default_rules": [
+            {
+              "target_field": "Store Number",
+              "value": 1,
+              "status": "active",
+              "confidence": 1.0,
+              "provenance": {
+                "source": "Milwaukee learned default",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "target_field": "Stocking UOM",
+              "value": "EA",
+              "status": "active",
+              "confidence": 0.98,
+              "provenance": {
+                "source": "Milwaukee learned default",
+                "review_state": "legacy_migrated"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "Midwest": {
+      "status": "active",
+      "provenance": {
+        "source": "semantic_dictionary.json v1 migration",
+        "recorded_on": "2026-05-01",
+        "review_state": "legacy_migrated"
+      },
+      "seed_shared_concepts": [
+        "Item",
+        "MFG Part #",
+        "Description",
+        "UPC",
+        "Default Sell Price",
+        "Purchase Cost",
+        "Stocking UOM",
+        "Purchase UOM"
+      ],
+      "rule_sets": [
+        {
+          "id": "midwest-core-header-mappings",
+          "status": "active",
+          "confidence": 0.96,
+          "provenance": {
+            "source": "semantic_dictionary.json v1 migration",
+            "recorded_on": "2026-05-01",
+            "review_state": "legacy_migrated"
+          },
+          "mapping_rules": [
+            {
+              "source_header": "Item Number",
+              "target_field": "Item",
+              "status": "active",
+              "confidence": 0.99,
+              "provenance": {
+                "source": "Midwest learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Custom Part Number",
+              "target_field": "MFG Part #",
+              "status": "active",
+              "confidence": 0.95,
+              "provenance": {
+                "source": "Midwest learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Description",
+              "target_field": "Description",
+              "status": "active",
+              "confidence": 0.99,
+              "provenance": {
+                "source": "Midwest learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Each UPC",
+              "target_field": "UPC",
+              "status": "active",
+              "confidence": 0.98,
+              "provenance": {
+                "source": "Midwest learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Each Retail",
+              "target_field": "Default Sell Price",
+              "status": "active",
+              "confidence": 0.94,
+              "provenance": {
+                "source": "Midwest learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Box Cost",
+              "target_field": "Purchase Cost",
+              "status": "active",
+              "confidence": 0.94,
+              "provenance": {
+                "source": "Midwest learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Each UM",
+              "target_field": "Stocking UOM",
+              "status": "active",
+              "confidence": 0.92,
+              "provenance": {
+                "source": "Midwest learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Box UM",
+              "target_field": "Purchase UOM",
+              "status": "active",
+              "confidence": 0.92,
+              "provenance": {
+                "source": "Midwest learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            }
+          ],
+          "normalization_rules": [
+            {
+              "name": "midwest_item_number_standardization",
+              "applies_to": "Item",
+              "status": "active",
+              "confidence": 0.99,
+              "provenance": {
+                "source": "documented vendor rule",
+                "review_state": "project_confirmed"
+              },
+              "notes": [
+                "Standardize Midwest item numbers to M plus 5 digits before comparison.",
+                "Retire and replace this rule only if the vendor format changes and the user confirms the new canonical form."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "DIB": {
+      "status": "active",
+      "provenance": {
+        "source": "semantic_dictionary.json v1 migration",
+        "recorded_on": "2026-05-01",
+        "review_state": "legacy_migrated"
+      },
+      "seed_shared_concepts": [
+        "Item",
+        "MFG Part #",
+        "Description",
+        "UPC",
+        "Default Sell Price",
+        "Purchase Cost",
+        "Store Tags"
+      ],
+      "rule_sets": [
+        {
+          "id": "dib-core-header-mappings",
+          "status": "active",
+          "confidence": 0.96,
+          "provenance": {
+            "source": "semantic_dictionary.json v1 migration",
+            "recorded_on": "2026-05-01",
+            "review_state": "legacy_migrated"
+          },
+          "mapping_rules": [
+            {
+              "source_header": "SKU",
+              "target_field": "Item",
+              "status": "active",
+              "confidence": 0.98,
+              "provenance": {
+                "source": "DIB learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Model",
+              "target_field": "MFG Part #",
+              "status": "active",
+              "confidence": 0.95,
+              "provenance": {
+                "source": "DIB learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Short Product Description",
+              "target_field": "Description",
+              "status": "active",
+              "confidence": 0.97,
+              "provenance": {
+                "source": "DIB learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "UPC",
+              "target_field": "UPC",
+              "status": "active",
+              "confidence": 0.99,
+              "provenance": {
+                "source": "DIB learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Your Retail",
+              "target_field": "Default Sell Price",
+              "status": "active",
+              "confidence": 0.94,
+              "provenance": {
+                "source": "DIB learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "Cost",
+              "target_field": "Purchase Cost",
+              "status": "active",
+              "confidence": 0.94,
+              "provenance": {
+                "source": "DIB learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            },
+            {
+              "source_header": "POG Number",
+              "target_field": "Store Tags",
+              "status": "active",
+              "confidence": 0.9,
+              "provenance": {
+                "source": "DIB learned mapping",
+                "review_state": "legacy_migrated"
+              }
+            }
+          ]
+        }
+      ]
+    }
   }
 }
