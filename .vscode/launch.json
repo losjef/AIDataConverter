@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET MAUI (Windows)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-windows",
+            "program": "${workspaceFolder}/AIDataConvertor/bin/Debug/net10.0-windows10.0.19041.0/win-x64/AIDataConvertor.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/AIDataConvertor",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "DOTNET_MODIFIABLE_ASSEMBLIES": "debug"
+            }
+        }
+    ]
+}
