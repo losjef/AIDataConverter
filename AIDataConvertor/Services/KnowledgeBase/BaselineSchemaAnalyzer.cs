@@ -1,36 +1,20 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using AIDataConvertor.Models.KnowledgeBase;
 
 namespace AIDataConvertor.Services.KnowledgeBase;
 
 public sealed class BaselineSchemaAnalyzer : IBaselineSchemaAnalyzer
 {
-	private static readonly string[] SupportedPeriodFormats =
-	[
-		"MMM-yy",
-		"MMM yy",
-		"MMM-yyyy",
-		"MMM yyyy",
-		"MMMM-yy",
-		"MMMM yyyy",
-		"yyyy-MM",
-		"MM-yyyy",
-		"M-yyyy",
-		"MM/yy",
-		"M/yy",
-		"MM/yyyy",
-		"M/yyyy"
-	];
-
-	private static readonly Regex QuarterPattern = new(
-		@"^Q[1-4][\s\-_/]?(\d{2}|\d{4})$",
-		RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
 	private readonly ISemanticDictionaryQueryService semanticDictionaryQueryService;
+	private readonly IBaselineSchemaRulesRepository baselineSchemaRulesRepository;
 
-	public BaselineSchemaAnalyzer(ISemanticDictionaryQueryService semanticDictionaryQueryService)
+	public BaselineSchemaAnalyzer(
+		ISemanticDictionaryQueryService semanticDictionaryQueryService,
+		IBaselineSchemaRulesRepository baselineSchemaRulesRepository)
 	{
 		this.semanticDictionaryQueryService = semanticDictionaryQueryService;
+		this.baselineSchemaRulesRepository = baselineSchemaRulesRepository;
 	}
 
 	public async Task<BaselineReadinessReport> AnalyzeAsync(
@@ -38,12 +22,18 @@ public sealed class BaselineSchemaAnalyzer : IBaselineSchemaAnalyzer
 		BaselineWorkflowProfile workflowProfile,
 		CancellationToken cancellationToken = default)
 	{
+		var rulesDocument = await baselineSchemaRulesRepository.LoadAsync(cancellationToken);
+		var workflowDefinition = GetWorkflowDefinition(rulesDocument, workflowProfile);
+		var requiredFields = workflowDefinition.RequiredFields;
 		var analyses = new List<BaselineColumnAnalysis>();
 		var resolvedFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		var quarterPattern = new Regex(
+			rulesDocument.DynamicTimeSeries.QuarterPattern,
+			RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		foreach (var sourceHeader in sourceHeaders)
 		{
-			if (TryGetDynamicColumnGroup(sourceHeader, out var dynamicColumnGroup))
+			if (TryGetDynamicColumnGroup(sourceHeader, rulesDocument.DynamicTimeSeries, quarterPattern, out var dynamicColumnGroup))
 			{
 				analyses.Add(new BaselineColumnAnalysis(
 					sourceHeader,
@@ -68,7 +58,7 @@ public sealed class BaselineSchemaAnalyzer : IBaselineSchemaAnalyzer
 					sourceHeader,
 					"Resolved",
 					null,
-					workflowProfile.RequiredFields.Contains(bestCandidate.TargetField, StringComparer.OrdinalIgnoreCase),
+					requiredFields.Contains(bestCandidate.TargetField, StringComparer.OrdinalIgnoreCase),
 					true,
 					false,
 					bestCandidate.TargetField,
@@ -89,7 +79,7 @@ public sealed class BaselineSchemaAnalyzer : IBaselineSchemaAnalyzer
 				[]));
 		}
 
-		var missingRequiredFields = workflowProfile.RequiredFields
+		var missingRequiredFields = requiredFields
 			.Where(requiredField => !resolvedFields.Contains(requiredField))
 			.OrderBy(requiredField => requiredField, StringComparer.OrdinalIgnoreCase)
 			.ToList();
@@ -98,14 +88,31 @@ public sealed class BaselineSchemaAnalyzer : IBaselineSchemaAnalyzer
 
 		return new BaselineReadinessReport(
 			workflowProfile.Name,
-			workflowProfile.RequiredFields,
+			requiredFields,
 			analyses,
 			missingRequiredFields,
 			missingRequiredFields.Count == 0,
 			dynamicColumnCount);
 	}
 
-	private static bool TryGetDynamicColumnGroup(string sourceHeader, out string dynamicColumnGroup)
+	private static BaselineWorkflowRuleDefinition GetWorkflowDefinition(
+		BaselineSchemaRulesDocument rulesDocument,
+		BaselineWorkflowProfile workflowProfile)
+	{
+		if (rulesDocument.WorkflowProfiles.TryGetValue(workflowProfile.Name, out var workflowDefinition))
+		{
+			return workflowDefinition;
+		}
+
+		throw new InvalidOperationException(
+			$"No baseline workflow rule definition was found for '{workflowProfile.Name}'.");
+	}
+
+	private static bool TryGetDynamicColumnGroup(
+		string sourceHeader,
+		DynamicTimeSeriesRules dynamicTimeSeriesRules,
+		Regex quarterPattern,
+		out string dynamicColumnGroup)
 	{
 		var normalized = sourceHeader.Trim();
 		if (string.IsNullOrWhiteSpace(normalized))
@@ -116,7 +123,7 @@ public sealed class BaselineSchemaAnalyzer : IBaselineSchemaAnalyzer
 
 		if (DateTime.TryParseExact(
 			normalized,
-			SupportedPeriodFormats,
+			dynamicTimeSeriesRules.SupportedPeriodFormats.ToArray(),
 			CultureInfo.InvariantCulture,
 			DateTimeStyles.None,
 			out _))
@@ -125,7 +132,7 @@ public sealed class BaselineSchemaAnalyzer : IBaselineSchemaAnalyzer
 			return true;
 		}
 
-		if (QuarterPattern.IsMatch(normalized))
+		if (quarterPattern.IsMatch(normalized))
 		{
 			dynamicColumnGroup = "QuarterPeriod";
 			return true;
@@ -134,9 +141,4 @@ public sealed class BaselineSchemaAnalyzer : IBaselineSchemaAnalyzer
 		dynamicColumnGroup = string.Empty;
 		return false;
 	}
-
-	public static bool LooksLikeDynamicTimeSeriesHeader(string sourceHeader)
-	{
-		return TryGetDynamicColumnGroup(sourceHeader, out _);
-		}
 }

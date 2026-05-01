@@ -13,6 +13,13 @@ The objective of this project is to build an AI-powered data conversion engine t
 ### 3.1 Template Management
 - **Metadata Extraction**: The system must parse `.xlsx` files in `PropelloTemplates/` to extract field-level constraints (Data Type, Mandatory status, Allowed Values, Max Length).
 - **Structural Reference**: The system must use `.csv` files in `PropelloTemplates/` to determine the exact header row and file encoding for the output.
+- **Templates As Goal Memory**: Propello templates should participate in the application's learning and memory structure because they define the destination fields the engine is trying to reach.
+- **Cross-Template Field Reuse**: The memory model should support overlapping fields and relationships across templates so shared concepts such as product identity, pricing, and purchasing data do not have to be relearned separately for every import type.
+- **System-Education Value**: Template relationships should also be treated as a way to teach the engine how Epicor Propello works as a system, even when the operator is only preparing one export template at a time.
+- **Template Relationship Awareness**: The engine should be able to recognize that some templates are related views of the same business entities. For example, pricing-oriented templates may overlap product templates, and purchasing templates may overlap product and vendor concepts even when the target workflow differs.
+- **Current Relationship Scope For Common Export Templates**: For `ProductImport`, `PriceChangeImport`, and `POLinesImport`, the main shared linkable field is `Item`, representing the Superior Hardware product code. Within the application's working assumptions, `Item` should be unique and can be treated as the canonical index for those template relationships unless the user later defines a more specific exception.
+- **Single-Template Execution Bias**: Even when templates share destination concepts, the application should generally assume one Propello export target is being prepared at a time rather than trying to coordinate multiple export templates in the same workflow.
+- **Execution Scope Constraint**: Learning cross-template relationships is useful for system understanding, but that does not imply the runtime should assume multiple export templates are being produced together unless the user explicitly asks for that.
 
 ### 3.1.1 Supported Workflow Outcomes
 - **Template Output Mode**: The system must be able to convert a vendor or input file into one of the supported Propello templates.
@@ -109,14 +116,20 @@ The system should be designed so that **learning compounds in local C# services*
 
 - **Learning Storage Goals**:
   - Persist learned vendor header aliases and defaults in `AgentAssets/KnowledgeBase/semantic_dictionary.json`.
+  - Add structured knowledge for Propello template fields, shared concepts, and cross-template relationships so destination schemas become part of local memory rather than remaining isolated static files.
   - Add structured stores for manual item links, normalization rules, UOM mappings, and future confidence/audit metadata as implementation advances.
+  - Prefer storing hard data links, workflow parameters, and changeable relationship rules in data files or other editable assets rather than hard-coding them in C# where practical.
+  - Provide supporting user documentation or manuals for editable knowledge assets so operators can understand what each file is for, how to read it, and how to edit it safely.
+  - Keep those manuals updated whenever the related knowledge assets change materially.
   - Keep these assets readable by both humans and the C# engine.
   - Favor formats that an experienced user can review and safely edit when correcting a match rule.
   - Capture schema version, lifecycle status, provenance, confidence, shared concepts, vendor rule sets, and cross-vendor seed behavior in the semantic dictionary.
 - **C#-Managed Memory Responsibilities**:
   - Maintain vendor fingerprints derived from normalized header sets, worksheet names, and stable column groupings.
   - Maintain Superior Hardware baseline fingerprints and known export variants so repeated baseline layouts can be recognized locally.
+  - Maintain Propello template fingerprints, canonical destination fields, and reusable field-group relationships across related import templates.
   - Cache known mappings from source headers to Propello fields.
+  - Interpret data-driven links and parameters from checked-in knowledge assets instead of treating those rules as fixed code behavior wherever practical.
   - Record approved user corrections so identical or near-identical layouts can be resolved locally.
   - Track confidence and reason codes for every resolved field or row.
 - **Selective AI Escalation Rules**:
@@ -172,6 +185,10 @@ Because the user already has substantial experience creating correct mappings, t
 - **Decision 13: The Product Has Two Primary Outcomes**: The application must support both Propello-template conversion and comparison-oriented review against Superior Hardware products.
 - **Decision 14: Comparison UI Is Case-Specific**: Comparison workflows should be allowed to evolve case by case rather than being forced into a single generic UI pattern.
 - **Decision 15: Upload-First File Intake With Optional Baseline Auto-Load**: Vendor files should be user-supplied for each workflow rather than silently loaded by default, while Superior Hardware baseline loading may be auto-started only when the user explicitly enables that behavior as a saved preference.
+- **Decision 16: Propello Templates Participate In Memory**: Propello template schemas and their shared field relationships should be modeled as part of the system's learning layer because they define the destination concepts the engine is trying to satisfy.
+- **Decision 17: Common Propello Export Templates Currently Share `Item` As The Main Link**: For `ProductImport`, `PriceChangeImport`, and `POLinesImport`, the current relationship model should treat `Item` as the primary shared key and avoid inventing broader linkage unless the user provides more detail.
+- **Decision 18: Template Relationships Can Educate The System About Propello**: Cross-template knowledge should help the engine understand the broader Propello domain model even when day-to-day execution remains focused on a single export template at a time.
+- **Decision 19: Changeable Links And Parameters Should Be Data-Driven**: Hard data links, relationship rules, and workflow parameters should live in editable data assets where practical so they can evolve over time without forcing code changes.
 
 ## 5. Tech Stack
 - **Framework**: .NET 10
@@ -192,6 +209,8 @@ Current next milestone: Phase 2 template parsing and validation services behind 
 ## 7. Adaptive Knowledge Base
 To ensure the agent gets "smarter" over time, all learned semantic mappings, unit of measure (UOM) conversions, and manual item links are stored in the `AgentAssets/KnowledgeBase/` directory.
 
+Each editable knowledge asset in that directory must also be represented in the folder manual at `AgentAssets/KnowledgeBase/README.md` so the operator has a current explanation of the file's purpose, structure, and safe editing expectations.
+
 ### 7.1 Semantic Aliases
 - **Source of Truth**: `AgentAssets/KnowledgeBase/semantic_dictionary.json`
 - **Purpose**: Maps vendor-specific headers (e.g., `SKU`, `Box Cost`) to standard Propello fields (`Item`, `Purchase Cost`).
@@ -200,11 +219,17 @@ To ensure the agent gets "smarter" over time, all learned semantic mappings, uni
 - **Evolution Direction**: The file should remain human-readable while supporting schema versioning, provenance, confidence, lifecycle status, replacement/deprecation, vendor rule sets, and cross-vendor seeding behavior.
 
 ### 7.2 Manual Linking Registry
-- **Source of Truth**: `AgentAssets/KnowledgeBase/manual_links.json` (Pending Creation)
+- **Source of Truth**: `AgentAssets/KnowledgeBase/manual_links.json`
 - **Purpose**: Persists manual cross-references made by the user when automated linking fails.
+- **Current Shape**: The initial registry stores governance rules plus an editable list of approved link records. It is intentionally conservative so user-confirmed links can be persisted without implying broader auto-linking behavior.
+- **Editing Rule**: Only approved user decisions belong in this registry. Uncertain links should stop for clarification rather than being written as guesses.
 
 ### 7.3 Planned Learning Stores For C# Runtime Use
 - **Vendor Fingerprints**: A planned structured asset that records recognizable vendor/layout signatures so the engine can short-circuit repeated AI interpretation.
+- **Propello Goal-Schema Memory**: `AgentAssets/KnowledgeBase/propello_template_memory.json` is now the initial structured asset for Propello template concepts, shared destination fields, and lightweight cross-template relationships.
+- **Baseline Schema Rules**: `AgentAssets/KnowledgeBase/baseline_schema_rules.json` is now the initial structured asset for workflow-specific baseline required fields and dynamic time-series detection patterns.
+- **Knowledge-Base Manual**: `AgentAssets/KnowledgeBase/README.md` is the user-facing guide for understanding and safely editing the knowledge assets in this folder.
+- **Manual Linking Registry**: `AgentAssets/KnowledgeBase/manual_links.json` is now the initial structured asset for preserving user-approved cross-references when deterministic linking is insufficient.
 - **Normalization Rules**: A planned structured asset for canonicalizing raw source values before semantic matching.
 - **Confidence and Audit Metadata**: A planned structured asset or runtime log that explains why a mapping was resolved locally, escalated to AI, or stopped for user review.
 - **Design Intent**: These stores should be consumable directly from C# services so learning remains local, versioned, testable, and progressively less token-dependent.

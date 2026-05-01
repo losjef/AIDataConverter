@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "description": "Baseline schema readiness rules, dynamic time-series detection patterns, and workflow-specific required fields.",
+  "governance": {
+    "notes": [
+      "Store changeable baseline workflow requirements in data rather than code where practical.",
+      "Keep dynamic period detection patterns editable because reporting exports may drift over time."
+    ]
+  },
+  "dynamic_time_series": {
+    "supported_period_formats": [
+      "MMM-yy",
+      "MMM yy",
+      "MMM-yyyy",
+      "MMM yyyy",
+      "MMMM-yy",
+      "MMMM yyyy",
+      "yyyy-MM",
+      "MM-yyyy",
+      "M-yyyy",
+      "MM/yy",
+      "M/yy",
+      "MM/yyyy",
+      "M/yyyy"
+    ],
+    "quarter_pattern": "^Q[1-4][\\s\\-_/]?(\\d{2}|\\d{4})$"
+  },
+  "workflow_profiles": {
+    "UPC Matching": {
+      "required_fields": [
+        "Item",
+        "UPC",
+        "Description"
+      ]
+    },
+    "ProductImport Enrichment (first pass)": {
+      "required_fields": [
+        "Item",
+        "Description",
+        "UPC",
+        "Default Sell Price",
+        "Purchase Cost"
+      ]
+    }
+  }
+}

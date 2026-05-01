@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "description": "User-approved manual cross-references for source-to-destination or source-to-baseline linking when deterministic rules and safe reuse are not sufficient.",
+  "governance": {
+    "new_links_require_user_review": true,
+    "statuses": [
+      "active",
+      "deprecated",
+      "retired",
+      "replaced"
+    ],
+    "notes": [
+      "Store only approved manual links here.",
+      "Do not create uncertain links automatically.",
+      "Preserve historical records by changing lifecycle state instead of deleting past decisions."
+    ]
+  },
+  "links": []
+}

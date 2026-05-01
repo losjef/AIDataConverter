@@ -66,6 +66,38 @@ This file records the rationale behind architectural choices, directory structur
 - **Decision**: Superior Hardware baseline loading should support a saved user preference for auto-load, while always retaining a manual upload path.
 - **Rationale**: Some users will want the latest baseline brought in automatically, while others will want explicit session control. Supporting both keeps the workflow flexible without forcing one default behavior on everyone.
 
+## 2026-05-01: Propello Templates As Memory And Goal Schema
+- **Decision**: Treat `PropelloTemplates/` as part of the learning and memory model, not only as static output references.
+- **Rationale**: Propello fields are the destination concepts the engine is trying to produce. Modeling those destination schemas explicitly should improve local reasoning, reuse, and explainability.
+- **Decision**: Capture overlap and relationships across Propello templates where fields or business concepts recur.
+- **Rationale**: Templates such as product, price-change, and purchasing imports share meaningful concepts. Representing those overlaps should reduce duplicated mapping logic and improve reuse across workflows.
+- **Decision**: For `ProductImport`, `PriceChangeImport`, and `POLinesImport`, use `Item` as the current shared key and treat it as the linkable index for template-memory purposes.
+- **Rationale**: The user clarified that `Item` is the main common field for Superior Hardware products, it should be unique, and additional linking structure is not currently needed.
+- **Decision**: Bias the workflow toward one export template at a time even when template-memory captures shared concepts.
+- **Rationale**: These templates are export goals for Epicor Propello, not concurrent working sets. Overbuilding cross-template coordination would add complexity without matching the current operating model.
+- **Decision**: Preserve cross-template relationships as educational memory about how Propello works as a system.
+- **Rationale**: Even when exports are typically prepared one at a time, those relationships still help the engine reason about destination concepts, field reuse, and template intent more accurately.
+
+## 2026-05-01: Data-Driven Relationship And Parameter Storage
+- **Decision**: Prefer storing hard data links, relationship rules, and workflow parameters in editable data assets rather than hard-coding them in C# when the values may change over time.
+- **Rationale**: Relationship rules and operational parameters are part of the system's learned business knowledge. Keeping them in data files makes them easier to review, update, version, and reuse without recompiling code.
+
+## 2026-05-01: Knowledge Assets Need User Manuals
+- **Decision**: Editable knowledge assets that store matching information, parameters, learned behavior, or similar memory must have supporting user documentation that explains what they are, how to read them, and how to edit them safely.
+- **Rationale**: If these files are part of the product's operator-facing memory layer, users need practical guidance for maintaining them.
+- **Decision**: Those manuals must be kept up to date whenever the corresponding knowledge assets change materially.
+- **Rationale**: A stale manual is almost as risky as opaque code because it can cause users to misunderstand or corrupt the product's learned rules.
+
+## 2026-05-01: Manual Linking Registry Starts As A Conservative Exception Store
+- **Decision**: `manual_links.json` should begin as a user-approved exception registry for explicit cross-references rather than a broad inferred-link engine.
+- **Rationale**: This preserves the no-assumption rule while still giving the C# runtime a local place to remember operator-approved links.
+
+## 2026-05-01: End-Of-Day Handoff Must Be Cross-Machine Safe
+- **Decision**: Repo-local end-of-day state must include a concrete resume file and a short current-focus file under `.squad/identity/`.
+- **Rationale**: The next session should be able to resume from a narrow, authoritative handoff instead of re-scanning the repository and reconstructing context.
+- **Decision**: End-of-day handoff for this project must include git sync steps so switching computers does not strand local-only state.
+- **Rationale**: A handoff is incomplete if the branch was not committed, pulled/rebased, and pushed, because the next machine may otherwise start from stale code.
+
 ## 2026-04-30: Directory Rationale
 - **`PropelloTemplates/`**: Contains "Gold Standard" pairs. XLSX for metadata (rows = fields), CSV for structural reference.
 - **`VendorFiles/`**: Renamed from `VendorTemplates` to reflect that these contain actual raw data files provided by vendors for processing.

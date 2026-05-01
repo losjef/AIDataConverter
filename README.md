@@ -4,6 +4,8 @@ AIDataConverter is a .NET 10 MAUI Blazor Hybrid application and conversion engin
 
 The product goal is to make vendor onboarding and catalog maintenance repeatable, explainable, and eventually sellable without requiring full-file AI interpretation on every run. The preferred architecture is a memory-first C# pipeline: local rules, learned patterns, and user-reviewed matches resolve as much as possible before any optional AI escalation is considered.
 
+That memory model should include both sides of the mapping problem: vendor/source patterns and the Propello destination schemas themselves. The Propello templates are often the goal vocabulary the engine is trying to satisfy, and related templates can share destination concepts that should be reusable instead of modeled in isolation.
+
 ## Product Direction
 
 This repository is being shaped around a commercially viable workflow:
@@ -66,6 +68,8 @@ That file now follows an adaptive v2 schema intended to support:
 
 The intent is not just to store aliases, but to create a durable memory layer that can evolve as vendor formats drift.
 
+That memory layer now also has an initial companion asset at `AgentAssets/KnowledgeBase/propello_template_memory.json` to capture Propello template field knowledge and lightweight cross-template relationships so shared destination concepts like product, pricing, and purchasing data can be understood once and reused across related import workflows.
+
 ## Adaptive Matching Strategy
 
 Vendor formats will change over time. A long-running feed may rename columns, split fields, or repurpose old headers. Because of that, learned patterns must be adaptable rather than permanent.
@@ -112,6 +116,10 @@ That creates a better commercial story:
 - `DECISION_LOG.md`: architectural decisions and safety constraints
 - `AGENTS.md`: repo-specific guidance for coding agents
 - `AgentAssets/KnowledgeBase/semantic_dictionary.json`: adaptive semantic memory and matching rules
+- `AgentAssets/KnowledgeBase/propello_template_memory.json`: Propello goal-schema memory and lightweight template relationship knowledge
+- `AgentAssets/KnowledgeBase/baseline_schema_rules.json`: data-driven baseline workflow requirements and dynamic time-series detection rules
+- `AgentAssets/KnowledgeBase/manual_links.json`: user-approved manual cross-reference registry for exceptions that should not be guessed automatically
+- `AgentAssets/KnowledgeBase/README.md`: user manual for the editable knowledge-base assets and how to maintain them
 
 ## Build
 
@@ -136,6 +144,7 @@ This README should be updated whenever any of the following change materially:
 - Core workflow order
 - AI vs non-AI execution strategy
 - Knowledge asset ownership or schema expectations
+- Knowledge-base manual coverage for editable memory files
 - Build/run instructions
 - Major implementation milestones
 

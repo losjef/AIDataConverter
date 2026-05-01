@@ -65,6 +65,9 @@
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
         <MauiAsset Include="..\AgentAssets\KnowledgeBase\semantic_dictionary.json" Link="Resources\Raw\semantic_dictionary.json" LogicalName="semantic_dictionary.json" />
+        <MauiAsset Include="..\AgentAssets\KnowledgeBase\propello_template_memory.json" Link="Resources\Raw\propello_template_memory.json" LogicalName="propello_template_memory.json" />
+        <MauiAsset Include="..\AgentAssets\KnowledgeBase\baseline_schema_rules.json" Link="Resources\Raw\baseline_schema_rules.json" LogicalName="baseline_schema_rules.json" />
+        <MauiAsset Include="..\AgentAssets\KnowledgeBase\manual_links.json" Link="Resources\Raw\manual_links.json" LogicalName="manual_links.json" />
     </ItemGroup>
 
     <ItemGroup>

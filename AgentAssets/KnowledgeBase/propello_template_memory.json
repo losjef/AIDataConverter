@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.0",
+  "description": "Human-readable Propello template memory asset describing destination schemas, shared concepts, and lightweight cross-template relationships.",
+  "governance": {
+    "single_template_execution_default": true,
+    "canonical_link_field": "Item",
+    "notes": [
+      "Template relationships are primarily for educating the system about Propello's domain model.",
+      "Do not assume multi-template execution unless the user explicitly requests it.",
+      "Do not invent broader cross-template links without user clarification."
+    ]
+  },
+  "shared_concepts": {
+    "Item": {
+      "description": "Primary Superior Hardware product identifier used as the shared destination key across common export templates.",
+      "status": "active",
+      "provenance": {
+        "source": "user clarification",
+        "recorded_on": "2026-05-01",
+        "review_state": "user_confirmed"
+      }
+    },
+    "ProductPricing": {
+      "description": "Destination concept grouping product identity with price-oriented maintenance workflows.",
+      "status": "active",
+      "provenance": {
+        "source": "project design synthesis",
+        "recorded_on": "2026-05-01",
+        "review_state": "project_inferred"
+      }
+    },
+    "PurchaseOrderLine": {
+      "description": "Destination concept describing purchasing activity for an existing Superior Hardware product item.",
+      "status": "active",
+      "provenance": {
+        "source": "project design synthesis",
+        "recorded_on": "2026-05-01",
+        "review_state": "project_inferred"
+      }
+    }
+  },
+  "templates": {
+    "ProductImport": {
+      "status": "active",
+      "primary_entity": "Product",
+      "execution_role": "primary_export",
+      "description": "Product master export template for Epicor Propello.",
+      "shared_concepts": [
+        "Item",
+        "ProductPricing"
+      ],
+      "canonical_fields": [
+        {
+          "field_name": "Item",
+          "concept": "Item",
+          "status": "active",
+          "is_link_key": true,
+          "provenance": {
+            "source": "user clarification",
+            "recorded_on": "2026-05-01",
+            "review_state": "user_confirmed"
+          }
+        }
+      ]
+    },
+    "PriceChangeImport": {
+      "status": "active",
+      "primary_entity": "PriceMaintenance",
+      "execution_role": "single_export_variant",
+      "description": "Price maintenance export template for Epicor Propello.",
+      "shared_concepts": [
+        "Item",
+        "ProductPricing"
+      ],
+      "canonical_fields": [
+        {
+          "field_name": "Item",
+          "concept": "Item",
+          "status": "active",
+          "is_link_key": true,
+          "provenance": {
+            "source": "user clarification",
+            "recorded_on": "2026-05-01",
+            "review_state": "user_confirmed"
+          }
+        }
+      ]
+    },
+    "POLinesImport": {
+      "status": "active",
+      "primary_entity": "PurchaseOrderLine",
+      "execution_role": "single_export_variant",
+      "description": "Purchase order line export template for Epicor Propello.",
+      "shared_concepts": [
+        "Item",
+        "PurchaseOrderLine"
+      ],
+      "canonical_fields": [
+        {
+          "field_name": "Item",
+          "concept": "Item",
+          "status": "active",
+          "is_link_key": true,
+          "provenance": {
+            "source": "user clarification",
+            "recorded_on": "2026-05-01",
+            "review_state": "user_confirmed"
+          }
+        }
+      ]
+    }
+  },
+  "relationships": [
+    {
+      "from_template": "ProductImport",
+      "to_template": "PriceChangeImport",
+      "relationship_type": "shares_item_key",
+      "shared_concepts": [
+        "Item",
+        "ProductPricing"
+      ],
+      "notes": [
+        "These templates share product identity through Item.",
+        "The relationship helps the system understand pricing as a product-adjacent Propello concept."
+      ],
+      "provenance": {
+        "source": "user clarification plus project synthesis",
+        "recorded_on": "2026-05-01",
+        "review_state": "project_reviewed"
+      }
+    },
+    {
+      "from_template": "ProductImport",
+      "to_template": "POLinesImport",
+      "relationship_type": "shares_item_key",
+      "shared_concepts": [
+        "Item",
+        "PurchaseOrderLine"
+      ],
+      "notes": [
+        "These templates share product identity through Item.",
+        "The relationship helps the system understand purchasing activity as downstream from product identity."
+      ],
+      "provenance": {
+        "source": "user clarification plus project synthesis",
+        "recorded_on": "2026-05-01",
+        "review_state": "project_reviewed"
+      }
+    }
+  ]
+}

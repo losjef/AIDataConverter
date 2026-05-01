@@ -17,6 +17,9 @@ public static class MauiProgram
 
 		builder.Services.AddMauiBlazorWebView();
 		builder.Services.AddSingleton<ISemanticDictionaryRepository, SemanticDictionaryRepository>();
+		builder.Services.AddSingleton<IPropelloTemplateMemoryRepository, PropelloTemplateMemoryRepository>();
+		builder.Services.AddSingleton<IBaselineSchemaRulesRepository, BaselineSchemaRulesRepository>();
+		builder.Services.AddSingleton<IManualLinksRepository, ManualLinksRepository>();
 		builder.Services.AddSingleton<ISemanticDictionaryQueryService, SemanticDictionaryQueryService>();
 		builder.Services.AddSingleton<IBaselineSchemaAnalyzer, BaselineSchemaAnalyzer>();
 		builder.Services.AddSingleton<ISuperiorHardwareBaselineHeaderReader, SuperiorHardwareBaselineHeaderReader>();

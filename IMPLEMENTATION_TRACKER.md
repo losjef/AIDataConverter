@@ -21,13 +21,19 @@ The product requirements, architecture, constraints, and knowledge-base rules re
 - [ ] Develop C# logic to read Propello CSV headers.
 - [ ] Create a C# validation utility to check if a generated file matches the target schema.
 - [ ] Integrate those services behind the existing MAUI Blazor shell without coupling parsing logic to UI pages.
+- [x] Design and scaffold a local memory model for Propello template fields, shared concepts, and cross-template relationships.
 
 ## Phase 3: Semantic & Adaptive Mapping Logic (Agent-First Focus)
 
 - [x] Test the Agent's ability to interpret files in `VendorFiles/` against `PropelloTemplates/`.
 - [x] Build the initial semantic dictionary for common vendor aliases in `AgentAssets/KnowledgeBase/semantic_dictionary.json`.
 - [x] Scaffold the runtime semantic memory layer: typed schema models, file-backed repository, packaged seed asset, and lifecycle-aware local query service.
+- [x] Scaffold the Propello template memory layer: checked-in JSON asset, typed schema model, file-backed repository, and packaged seed asset wiring.
+- [x] Move first-pass baseline workflow requirements and dynamic period-detection patterns into a checked-in data asset with typed repository support.
+- [x] Scaffold the manual linking registry as a checked-in JSON asset with typed repository support and operator documentation.
+- [x] Create a first user-facing manual for editable knowledge assets and require it to stay aligned with those files.
 - [ ] Implement a C# learning store abstraction for vendor aliases, defaults, normalization rules, and future manual links.
+- [ ] Extend the learning store to include Propello goal-schema memory and reusable field relationships between templates.
 - [ ] Implement vendor fingerprinting so known layouts can be classified locally before AI escalation.
 - [ ] Implement confidence scoring for header and row-level mapping outcomes.
 - [x] Design the JSON schema so match rules remain human-readable and safely editable.
