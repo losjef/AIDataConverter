@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "universe": "The Matrix",
+  "project": "AIDataConverter",
+  "cast": ["morpheus", "oracle", "neo", "mouse", "switch", "trinity", "scribe", "ralph"],
+  "lead": "morpheus",
+  "created": "2026-05-01"
+}

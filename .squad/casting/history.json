@@ -4,6 +4,16 @@
       "universe": "Ocean's Eleven",
       "assignment_id": "aidataconverter-init-20260501",
       "used_at": "2026-05-01T14:18:55Z"
+    },
+    {
+      "universe": "The Matrix",
+      "assignment_id": "aidataconverter-recast-20260501",
+      "used_at": "2026-05-01T14:41:24Z"
+    },
+    {
+      "universe": "The Matrix",
+      "assignment_id": "aidataconverter-add-uiux-20260501",
+      "used_at": "2026-05-01T14:53:54Z"
     }
   ],
   "assignment_cast_snapshots": {
@@ -17,6 +27,29 @@
         "qa-engineer": "Basher"
       },
       "created_at": "2026-05-01T14:18:55Z"
+    },
+    "aidataconverter-recast-20260501": {
+      "universe": "The Matrix",
+      "agents": {
+        "lead": "Morpheus",
+        "data-engineer": "Oracle",
+        "backend-developer": "Neo",
+        "schema-specialist": "Switch",
+        "qa-engineer": "Trinity"
+      },
+      "created_at": "2026-05-01T14:41:24Z"
+    },
+    "aidataconverter-add-uiux-20260501": {
+      "universe": "The Matrix",
+      "agents": {
+        "lead": "Morpheus",
+        "data-engineer": "Oracle",
+        "backend-developer": "Neo",
+        "ui-ux-designer": "Mouse",
+        "schema-specialist": "Switch",
+        "qa-engineer": "Trinity"
+      },
+      "created_at": "2026-05-01T14:53:54Z"
     }
   }
 }
