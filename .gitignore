@@ -6,7 +6,7 @@
 # Squad: SubSquad activation file (local to this machine)
 .squad-workstream
 
-# .NET MAUI build outputs
-AIDataConvertor/bin/
-AIDataConvertor/obj/
+# .NET build outputs
+**/bin/
+**/obj/
 

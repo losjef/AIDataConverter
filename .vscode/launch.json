@@ -2,11 +2,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET MAUI (Windows)",
+            "name": ".NET MAUI (Windows - Auto Resolve)",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/AIDataConvertor/AIDataConvertor.csproj",
+            "preLaunchTask": "build-windows",
+            "cwd": "${workspaceFolder}/AIDataConvertor",
+            "env": {
+                "DOTNET_MODIFIABLE_ASSEMBLIES": "debug"
+            }
+        },
+        {
+            "name": ".NET MAUI (Windows - Current Machine ARM64)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-windows",
-            "program": "${workspaceFolder}/AIDataConvertor/bin/Debug/net10.0-windows10.0.19041.0/win-x64/AIDataConvertor.exe",
+            "program": "${workspaceFolder}/AIDataConvertor/bin/Debug/net10.0-windows10.0.19041.0/win-arm64/AIDataConvertor.exe",
             "args": [],
             "cwd": "${workspaceFolder}/AIDataConvertor",
             "stopAtEntry": false,

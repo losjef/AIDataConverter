@@ -79,7 +79,7 @@ else
 	<section class="mt-4">
 		<h2>Milwaukee IMAP Comparison Preview</h2>
 		<p>
-			This Milwaukee-only preview uses every row from the current Costs workbook and joins IMAP data when Item No or UPC Code resolves to one deterministic match.
+			This Milwaukee-only preview uses every row from the current Costs workbook and joins IMAP data when Item No or UPC Code resolves deterministically, with approved Milwaukee manual links available only as a fallback when deterministic matching is not safe.
 		</p>
 
 		@if (milwaukeeComparisonPreview is not null && milwaukeeComparisonPreview.ErrorMessage is not null)

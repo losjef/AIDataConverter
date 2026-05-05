@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\AIDataConvertor\Models\KnowledgeBase\ManualLinksDocument.cs" Link="Models\KnowledgeBase\ManualLinksDocument.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\IManualLinksRepository.cs" Link="Services\KnowledgeBase\IManualLinksRepository.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\IMilwaukeeComparisonPreviewService.cs" Link="Services\KnowledgeBase\IMilwaukeeComparisonPreviewService.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\IVendorWorkbookHeaderReader.cs" Link="Services\KnowledgeBase\IVendorWorkbookHeaderReader.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\VendorWorkbookHeaders.cs" Link="Services\KnowledgeBase\VendorWorkbookHeaders.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\MilwaukeeComparisonPreview.cs" Link="Services\KnowledgeBase\MilwaukeeComparisonPreview.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\MilwaukeeComparisonPreviewRow.cs" Link="Services\KnowledgeBase\MilwaukeeComparisonPreviewRow.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\MilwaukeeComparisonPreviewService.cs" Link="Services\KnowledgeBase\MilwaukeeComparisonPreviewService.cs" />
+  </ItemGroup>
+
+</Project>

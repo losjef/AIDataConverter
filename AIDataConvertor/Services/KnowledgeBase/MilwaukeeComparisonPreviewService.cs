@@ -1,4 +1,5 @@
 using ClosedXML.Excel;
+using AIDataConvertor.Models.KnowledgeBase;
 
 namespace AIDataConvertor.Services.KnowledgeBase;
 
@@ -33,10 +34,14 @@ public sealed class MilwaukeeComparisonPreviewService : IMilwaukeeComparisonPrev
 	};
 
 	private readonly IVendorWorkbookHeaderReader vendorWorkbookHeaderReader;
+	private readonly IManualLinksRepository manualLinksRepository;
 
-	public MilwaukeeComparisonPreviewService(IVendorWorkbookHeaderReader vendorWorkbookHeaderReader)
+	public MilwaukeeComparisonPreviewService(
+		IVendorWorkbookHeaderReader vendorWorkbookHeaderReader,
+		IManualLinksRepository manualLinksRepository)
 	{
 		this.vendorWorkbookHeaderReader = vendorWorkbookHeaderReader;
+		this.manualLinksRepository = manualLinksRepository;
 	}
 
 	public async Task<MilwaukeeComparisonPreview> LoadPreviewAsync(CancellationToken cancellationToken = default)
@@ -94,6 +99,7 @@ public sealed class MilwaukeeComparisonPreviewService : IMilwaukeeComparisonPrev
 
 		var imapRowsByItemNumber = BuildIndex(imapSheet.Rows, imapItemNumberColumn);
 		var imapRowsByUpcCode = BuildIndex(imapSheet.Rows, imapUpcCodeColumn);
+		var manualLinksDocument = await manualLinksRepository.LoadAsync(cancellationToken);
 
 		var previewRows = new List<MilwaukeeComparisonPreviewRow>(costsSheet.Rows.Count);
 		var matchedRowCount = 0;
@@ -106,7 +112,16 @@ public sealed class MilwaukeeComparisonPreviewService : IMilwaukeeComparisonPrev
 
 			var normalizedCostsItemNumber = NormalizeValue(costsRow.GetValue(costsItemNumber.Column!.Key));
 			var normalizedCostsUpcCode = NormalizeValue(costsRow.GetValue(costsUpcCode.Column!.Key));
-			var resolution = ResolveImapMatch(normalizedCostsItemNumber, normalizedCostsUpcCode, imapRowsByItemNumber, imapRowsByUpcCode);
+			var deterministicResolution = ResolveImapMatch(normalizedCostsItemNumber, normalizedCostsUpcCode, imapRowsByItemNumber, imapRowsByUpcCode);
+			var resolution = deterministicResolution.MatchStatus == "Matched"
+				? deterministicResolution
+				: ResolveManualLinkMatch(
+					manualLinksDocument.Links,
+					normalizedCostsItemNumber,
+					normalizedCostsUpcCode,
+					imapRowsByItemNumber,
+					imapRowsByUpcCode,
+					deterministicResolution);
 
 			switch (resolution.MatchStatus)
 			{
@@ -356,6 +371,84 @@ public sealed class MilwaukeeComparisonPreviewService : IMilwaukeeComparisonPrev
 		}
 
 		return new MatchResolution(null, "Ambiguous", "Conflict", "Item No and UPC Code do not collapse to one deterministic Milwaukee IMAP row.");
+	}
+
+	private static MatchResolution ResolveManualLinkMatch(
+		IReadOnlyList<ManualLinkRecord> manualLinks,
+		string normalizedCostsItemNumber,
+		string normalizedCostsUpcCode,
+		IReadOnlyDictionary<string, List<WorkbookDataRow>> imapRowsByItemNumber,
+		IReadOnlyDictionary<string, List<WorkbookDataRow>> imapRowsByUpcCode,
+		MatchResolution fallbackResolution)
+	{
+		var applicableLinks = manualLinks
+			.Where(link => IsApplicableManualLink(link, normalizedCostsItemNumber, normalizedCostsUpcCode))
+			.ToList();
+
+		if (applicableLinks.Count == 0)
+		{
+			return fallbackResolution;
+		}
+
+		if (applicableLinks.Count > 1)
+		{
+			return new MatchResolution(
+				null,
+				"Ambiguous",
+				"Manual Link Conflict",
+				$"Multiple active Milwaukee manual links match this Costs row: {string.Join(", ", applicableLinks.Select(link => link.Id))}.");
+		}
+
+		var manualLink = applicableLinks[0];
+		var manualResolution = ResolveImapMatch(
+			NormalizeValue(manualLink.TargetItemNumber),
+			NormalizeValue(manualLink.TargetUpc),
+			imapRowsByItemNumber,
+			imapRowsByUpcCode);
+
+		return manualResolution.MatchStatus == "Matched"
+			? new MatchResolution(
+				manualResolution.MatchedRow,
+				"Matched",
+				$"Manual Link ({manualResolution.MatchBasis})",
+				$"Applied active Milwaukee manual link {manualLink.Id} after deterministic matching remained {fallbackResolution.MatchStatus.ToLowerInvariant()}.")
+			: fallbackResolution;
+	}
+
+	private static bool IsApplicableManualLink(
+		ManualLinkRecord link,
+		string normalizedCostsItemNumber,
+		string normalizedCostsUpcCode)
+	{
+		if (!string.Equals(link.Status, "active", StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		if (!string.Equals(link.SourceVendor, "Milwaukee", StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		if (!string.Equals(link.TargetDataset, "IMAP", StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		var normalizedSourceItemNumber = NormalizeValue(link.SourceItemNumber);
+		var normalizedSourceUpc = NormalizeValue(link.SourceUpc);
+		if (string.IsNullOrWhiteSpace(normalizedSourceItemNumber) && string.IsNullOrWhiteSpace(normalizedSourceUpc))
+		{
+			return false;
+		}
+
+		if (string.IsNullOrWhiteSpace(NormalizeValue(link.TargetItemNumber)) && string.IsNullOrWhiteSpace(NormalizeValue(link.TargetUpc)))
+		{
+			return false;
+		}
+
+		return (string.IsNullOrWhiteSpace(normalizedSourceItemNumber) || string.Equals(normalizedSourceItemNumber, normalizedCostsItemNumber, StringComparison.OrdinalIgnoreCase))
+			&& (string.IsNullOrWhiteSpace(normalizedSourceUpc) || string.Equals(normalizedSourceUpc, normalizedCostsUpcCode, StringComparison.OrdinalIgnoreCase));
 	}
 
 	private static IReadOnlyList<WorkbookDataRow> GetMatches(
