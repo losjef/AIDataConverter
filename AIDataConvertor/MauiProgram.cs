@@ -23,6 +23,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<ISemanticDictionaryQueryService, SemanticDictionaryQueryService>();
 		builder.Services.AddSingleton<IBaselineSchemaAnalyzer, BaselineSchemaAnalyzer>();
 		builder.Services.AddSingleton<ISuperiorHardwareBaselineHeaderReader, SuperiorHardwareBaselineHeaderReader>();
+		builder.Services.AddSingleton<IPropelloTemplateCsvHeaderReader, PropelloTemplateCsvHeaderReader>();
 		builder.Services.AddSingleton<IVendorWorkbookHeaderReader, VendorWorkbookHeaderReader>();
 		builder.Services.AddSingleton<IMilwaukeeComparisonPreviewService, MilwaukeeComparisonPreviewService>();
 

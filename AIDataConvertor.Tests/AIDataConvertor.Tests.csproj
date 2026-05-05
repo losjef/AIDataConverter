@@ -22,7 +22,10 @@
     <Compile Include="..\AIDataConvertor\Models\KnowledgeBase\ManualLinksDocument.cs" Link="Models\KnowledgeBase\ManualLinksDocument.cs" />
     <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\IManualLinksRepository.cs" Link="Services\KnowledgeBase\IManualLinksRepository.cs" />
     <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\IMilwaukeeComparisonPreviewService.cs" Link="Services\KnowledgeBase\IMilwaukeeComparisonPreviewService.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\IPropelloTemplateCsvHeaderReader.cs" Link="Services\KnowledgeBase\IPropelloTemplateCsvHeaderReader.cs" />
     <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\IVendorWorkbookHeaderReader.cs" Link="Services\KnowledgeBase\IVendorWorkbookHeaderReader.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\PropelloTemplateCsvHeaderReader.cs" Link="Services\KnowledgeBase\PropelloTemplateCsvHeaderReader.cs" />
+    <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\PropelloTemplateCsvHeaders.cs" Link="Services\KnowledgeBase\PropelloTemplateCsvHeaders.cs" />
     <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\VendorWorkbookHeaders.cs" Link="Services\KnowledgeBase\VendorWorkbookHeaders.cs" />
     <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\MilwaukeeComparisonPreview.cs" Link="Services\KnowledgeBase\MilwaukeeComparisonPreview.cs" />
     <Compile Include="..\AIDataConvertor\Services\KnowledgeBase\MilwaukeeComparisonPreviewRow.cs" Link="Services\KnowledgeBase\MilwaukeeComparisonPreviewRow.cs" />

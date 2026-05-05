@@ -9,4 +9,5 @@
 # .NET build outputs
 **/bin/
 **/obj/
+**/*.csproj.user
 

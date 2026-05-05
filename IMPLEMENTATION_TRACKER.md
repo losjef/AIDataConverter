@@ -18,7 +18,7 @@ The product requirements, architecture, constraints, and knowledge-base rules re
 ## Phase 2: Template Parsing & Validation Services (C#) -> NEXT PRIORITY
 
 - [ ] Develop C# logic to parse Propello XLSX metadata rows.
-- [ ] Develop C# logic to read Propello CSV headers.
+- [x] Develop C# logic to read Propello CSV headers.
 - [ ] Create a C# validation utility to check if a generated file matches the target schema.
 - [ ] Integrate those services behind the existing MAUI Blazor shell without coupling parsing logic to UI pages.
 - [x] Design and scaffold a local memory model for Propello template fields, shared concepts, and cross-template relationships.
